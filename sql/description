@@ -1,0 +1,6 @@
+2020-01-22
+SQL output is created from HeidiSQL 10.3.0.5837
+A simple start for a search engine database.
+For example, make a database called 'best' and make
+the table 'search' from the sql code in this folder.
+

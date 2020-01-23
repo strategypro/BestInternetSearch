@@ -1,0 +1,5 @@
+2020-01-22
+Keep your db information safe, have your db_bestsearch.py file somewhere outside 
+of your /var/www/html serving directory.
+
+
