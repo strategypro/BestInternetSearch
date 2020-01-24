@@ -11,4 +11,10 @@ study it, modify it, do what you want with it, and also with love I hope, contri
 
 Make BestInternetSearch.com a home in your heart.
 
+## Instructions to install
+
+BestInternetSearch runs Python cgi on the Apache Server
+
+Linux
+Setup Python on Apache with this stackoverflow [guide](https://stackoverflow.com/a/57531411/4084546) I wrote.
 
