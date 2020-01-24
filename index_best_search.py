@@ -54,10 +54,7 @@ if not q == '':
             document.write(
             `
                 <style>
-
-                    .items {{ margin: auto; width: 60%; }}
-                    .item {{ padding:5px; }}
-                    
+                    a {{ font-size:200%;}}
                 </style>
             `);
         }}
@@ -67,14 +64,18 @@ if not q == '':
             `
                 <style>
     
-                    .items {{ margin: auto; width: 60%; }}
-                    .item {{ padding:5px; }}
-                    
                 </style>
             `);
         }}
     </script>
     
+    <style>
+         /* Mobile and Desktop */
+        .items {{ margin: auto; width: 60%; }}
+        .item {{ padding:5px; }}
+        .link {{ color: black;text-decoration: none; }}
+        .link:hover {{ color: blue; }}
+    </style>
     
     <link rel="icon" type="image/png" sizes="32x32" href="http://{strDomain}/bestsearch/page_img/favicon.png">
     <script src="http://{strDomain}/bestsearch/js/jquery-3.4.1.min.js"></script>
@@ -99,7 +100,8 @@ if not q == '':
             address = row['site_address']
             name = row['site_name']
             html += f"""
-            <div class="item"><span>({i})</span> <a href="{address}">{name}</a></div>"""
+            <div class="item"><span>({i})</span> <span style="font-size:small;"><a class="link" href="{address}">{address}</a></span><br>
+            <a href="{address}">{name}</a></div>"""
         
         html += f"""
         </div>"""
@@ -125,20 +127,6 @@ else:
             document.write(
             `
                 <style>
-
-                    .center_title {{
-                        text-align: center;
-                    }}
-                    
-                    #search_form {{
-                        text-align: center;
-                    }}
-                    
-                    #search_img {{
-                        border-radius: 10px;
-                        vertical-align:bottom;
-                        border:1px solid grey;    
-                    }}
                     
                     #search_input {{
                         font-size: 150%;
@@ -147,10 +135,6 @@ else:
                     #search_submit {{
                         font-size: 200%;
                     }}
-                    
-                    .git_source_code {{
-                        text-align: right;
-                    }}                       
                     
                 </style>
             `);
@@ -161,28 +145,39 @@ else:
             `
                 <style>
     
-                    .center_title {{
-                        text-align: center;
-                    }}
-                    
-                    #search_form {{
-                        text-align: center;
-                    }}
-                    
-                    #search_img {{
-                        border-radius: 10px;
-                        vertical-align:bottom;
-                        border:1px solid grey;    
-                    }}
-                    
-                    .git_source_code {{
-                        text-align: right;
-                    }}                    
-                    
                 </style>
             `);
         }}
     </script>
+    
+    <style>
+         /* Mobile and Desktop */
+         
+        .center_title {{
+            text-align: center;
+        }}
+        
+        #search_form {{
+            text-align: center;
+        }}
+         
+        #search_input {{
+            width:600px;
+            height:35px;
+        }}
+        
+        #search_img {{
+            border-radius: 10px;
+            vertical-align:bottom;
+            border:1px solid grey;    
+        }}
+        
+        .git_source_code {{
+            text-align: right;
+        }}  
+        
+    </style>
+    
     
     <link rel="icon" type="image/png" sizes="32x32" href="http://{strDomain}/bestsearch/page_img/favicon.png">
     <script src="http://{strDomain}/bestsearch/js/jquery-3.4.1.min.js"></script>
@@ -192,14 +187,14 @@ else:
     
     <script>    
         $(document).ready(function() {{
-
+        
             $('#search_img').on('click',function() {{
                 $('#search_submit').click();
             }});
-
+            
         }});
 
-        
+
         $(document).ready(function() {{
         
             var list = [];                                                                                 
@@ -215,6 +210,9 @@ else:
                         sort: false,
                         replace: function(suggestion) {{
                             //suggestion.value
+                            if (suggestion.label == "<h6 style='display:inline;'>suggestions - trending</h6>") {{
+                                suggestion.label = '';
+                            }}
                             this.input.value = suggestion.label;
                         }}
                 }}
@@ -269,7 +267,7 @@ else:
     <br>
     
     <form id="search_form" action="/" method="get">
-    <input id="search_input" type="text" name="q" style="height:35px"><img id="search_img" src="http://{strDomain}/bestsearch/page_img/search.png" >
+    <span style="white-space:nowrap"><input id="search_input" type="text" name="q"><img id="search_img" src="http://{strDomain}/bestsearch/page_img/search.png"></span>
     <br>
     <input id="search_submit" type="submit" value="Search">
     </form> 
