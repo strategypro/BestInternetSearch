@@ -16,9 +16,19 @@ cur = db.cursor(MySQLdb.cursors.DictCursor)
 
 from html import escape
 
+
 def enc_print(string='', encoding='utf8'):
     sys.stdout.buffer.write(string.encode(encoding) + b'\n')
-
+    
+def strHTMLredirect(redirectURL):
+    html = f"""
+    <!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={redirectURL}" /></head>
+    <body><noscript><meta http-equiv="refresh" content="0; url={redirectURL}" /></noscript></body>
+    </html>
+    """
+    return html
+    
+    
 html = ''
 
 strDomain = os.environ['HTTP_HOST'].lower()
@@ -29,12 +39,27 @@ domain_name = ''
 if strDomain == 'www.bestinternetsearch.com' or strDomain == 'bestinternetsearch.com':
     title = 'Best Internet Search'
     domain_name = 'BestInternetSearch.com'
+    if os.environ['HTTP_X_FORWARDED_PROTO'] == 'http':
+        html = strHTMLredirect('https://bestinternetsearch.com')
+        enc_print(html)
+        sys.exit()
+        
 elif strDomain == 'www.bestwwwsearch.com' or strDomain == 'bestwwwsearch.com':
     title = 'Best www Search'
     domain_name = 'BestwwwSearch.com'
+    if os.environ['HTTP_X_FORWARDED_PROTO'] == 'http':
+        html = strHTMLredirect('https://bestwwwsearch.com')
+        enc_print(html)
+        sys.exit()
+    
 elif strDomain == 'www.bestnetsearch.com' or strDomain == 'bestnetsearch.com':
     title = 'Best net Search'
     domain_name = 'BestnetSearch.com'
+    if os.environ['HTTP_X_FORWARDED_PROTO'] == 'http':
+        html = strHTMLredirect('https://bestnetsearch.com')
+        enc_print(html)
+        sys.exit()
+
 
 arguments = cgi.FieldStorage()
 q = '' if not arguments.getvalue( "q" ) else escape( arguments.getvalue( "q" ) )
@@ -77,8 +102,8 @@ if not q == '':
         .link:hover {{ color: blue; }}
     </style>
     
-    <link rel="icon" type="image/png" sizes="32x32" href="http://{strDomain}/bestsearch/page_img/favicon.png">
-    <script src="http://{strDomain}/bestsearch/js/jquery-3.4.1.min.js"></script>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://{strDomain}/bestsearch/page_img/favicon.png">
+    <script src="https://{strDomain}/bestsearch/js/jquery-3.4.1.min.js"></script>
     </head>
     <body>
     """
@@ -92,7 +117,7 @@ if not q == '':
     cur.execute(f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' ;""")
     res = cur.fetchall()   
     if res:
-        html += f"""Under construction, <a href="http://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
+        html += f"""Under construction, <a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
 
         html += f"""
         <div class="items">"""
@@ -179,11 +204,11 @@ else:
     </style>
     
     
-    <link rel="icon" type="image/png" sizes="32x32" href="http://{strDomain}/bestsearch/page_img/favicon.png">
-    <script src="http://{strDomain}/bestsearch/js/jquery-3.4.1.min.js"></script>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://{strDomain}/bestsearch/page_img/favicon.png">
+    <script src="https://{strDomain}/bestsearch/js/jquery-3.4.1.min.js"></script>
     
-    <link rel="stylesheet" href="http://{strDomain}/bestsearch/js/awesomplete/awesomplete.css" />
-    <script src="http://{strDomain}/bestsearch/js/awesomplete/awesomplete.min.js"></script>
+    <link rel="stylesheet" href="https://{strDomain}/bestsearch/js/awesomplete/awesomplete.css" />
+    <script src="https://{strDomain}/bestsearch/js/awesomplete/awesomplete.min.js"></script>
     
     <script>    
         $(document).ready(function() {{
@@ -200,8 +225,8 @@ else:
             var list = [];                                                                                 
             
             list.push({{label:"<h6 style='display:inline;'>suggestions - trending</h6>", value:"" }});
-            list.push({{label:"EarthDay.Love", value:"http://EarthDay.Love" }}); 
-            //list.push({{label:"TotalMart.US", value:"http://TotalMart.US" }}); 
+            list.push({{label:"EarthDay.Love", value:"https://EarthDay.Love" }}); 
+            //list.push({{label:"TotalMart.US", value:"https://TotalMart.US" }}); 
 
             var autocomplete = new Awesomplete(document.querySelector("#search_input"), {{
                         list:list,
@@ -238,7 +263,7 @@ else:
                     return;
                 }}
             
-                $.get( "http://{strDomain}/bestsearch/py/autocomplete_best_search.py?q=" + $("#search_input").val(), function( data ) {{
+                $.get( "https://{strDomain}/bestsearch/py/autocomplete_best_search.py?q=" + $("#search_input").val(), function( data ) {{
                     
                             var data = JSON.parse( data.trim() );				 
                             var list = [];                                                                                 
@@ -259,7 +284,7 @@ else:
     <body>
     <div class="git_source_code"><a  href="https://github.com/strategypro/BestInternetSearch">source code</a></div>
 <pre>
-<h1><a href="http://{strDomain}">{domain_name}</a></h1>
+<h1><a href="https://{strDomain}">{domain_name}</a></h1>
 </pre>
 
     <h1 class="center_title">{title}</h1>
@@ -267,8 +292,8 @@ else:
     <br>
     
     <form id="search_form" action="/" method="get">
-    <span style="white-space:nowrap"><input id="search_input" type="text" name="q"><img id="search_img" src="http://{strDomain}/bestsearch/page_img/search.png"></span>
-    <br>
+    <div style="white-space:nowrap"><input id="search_input" type="text" name="q"><img id="search_img" src="https://{strDomain}/bestsearch/page_img/search.png"></div>
+
     <input id="search_submit" type="submit" value="Search">
     </form> 
 
@@ -276,7 +301,6 @@ else:
     </html>
     """
     
-
 if __name__ == '__main__':
     enc_print("Content-Type:text/html;charset=utf-8;")
     enc_print()
