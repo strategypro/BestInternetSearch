@@ -164,7 +164,12 @@ if not q == '':
     #html += f"""search results from ({q}) """
     
     limit = 10; # results per page
-    cur.execute("SELECT count(id) from search;")
+    
+    if q == '*':
+        sql = f"""SELECT count(id) from search""";
+    else:
+        sql = f"""SELECT count(id) from search WHERE LOWER(site_name) LIKE '%{q}%' OR LOWER(site_title) LIKE '%{q}%' ;"""
+    cur.execute(sql)
     row = cur.fetchone()      
     total_records = row['count(id)']
     total_pages = str(math.ceil(int(total_records) / int(limit)))
@@ -185,6 +190,7 @@ if not q == '':
         for row in res:
             address = row['site_address']
             name = row['site_name']
+            title = row['site_title']
             uri = row['site_favicon_uri']
             
             favicon = ''
@@ -193,8 +199,8 @@ if not q == '':
                 favicon = f""" ( <img style="vertical-align:bottom;width:20px" src="{uri}"> ) """
                 
             html += f"""
-            <div class="item"><span style="font-size:small;"><a class="link" href="{address}">{address}</a></span><br>
-            <a href="{address}">{name}</a> {favicon}</div>"""
+            <div class="item"><span style="font-size:small;"><a class="link" href="{address}">{address}</a></span>  <br> 
+            <a href="{address}">{name}</a> {title} {favicon}</div>"""
         
         html += f"""
         </div>
@@ -209,14 +215,20 @@ if not q == '':
     total = 10
     total_pages = int(total_pages)
     page = int(page)
-        
-    if page > 5:
+    
+    if not q == '*':
+        if page < total:
+            total = total_pages
+    
+    if page >= 5:
         start = start + (page - 5)
         total = total + (page - 5)
         
         if total > total_pages:
             total = total_pages
-    
+
+
+
     
     if page > 1:
         i = page - 1
@@ -228,7 +240,7 @@ if not q == '':
             html +=  f"""<a class="active" href="/?q={q}&page={i}"><span class="active_b">[</span> {i} <span class="active_b">]</span></a>"""
         else:
             html +=  f"""<a href="/?q={q}&page={i}">[ {i} ]</a>""" 
-    
+
     if total_pages > page:
         i=page+1
         html += f"""<a class="nextprevious" href="/?q={q}&page={i}"><span class="paginationlinks">»</span> <span>Next</span></a> """
