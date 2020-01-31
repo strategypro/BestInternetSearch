@@ -5,6 +5,8 @@ import sys
 
 import cgi
 
+import math
+
 import cgitb
 OUTDIR = '/var/www/'
 cgitb.enable(display=0, logdir=OUTDIR)
@@ -14,8 +16,8 @@ sys.path.insert(0, "/var/www")
 from db_bestsearch import *
 cur = db.cursor(MySQLdb.cursors.DictCursor)
 
+from urllib import parse
 from html import escape
-
 
 def enc_print(string='', encoding='utf8'):
     sys.stdout.buffer.write(string.encode(encoding) + b'\n')
@@ -61,9 +63,51 @@ elif strDomain == 'www.bestnetsearch.com' or strDomain == 'bestnetsearch.com':
         sys.exit()
 
 
+
+
+
 arguments = cgi.FieldStorage()
 q = '' if not arguments.getvalue( "q" ) else escape( arguments.getvalue( "q" ) )
 q = q.lower()
+
+
+request_uri = os.environ['REQUEST_URI'].lower()
+
+def process_request(request_uri, params=None):
+    
+    if "?" in request_uri:
+        req_uri = request_uri.split("?")[1]
+
+        if "&" in req_uri:
+            page = req_uri.split("&")[0]
+        else:
+            page = req_uri
+        
+        params = dict(parse.parse_qsl(parse.urlsplit(request_uri).query))
+    else:
+        page = request_uri
+    return page, params
+
+page_req, params = process_request(request_uri)
+
+
+page = '' if not arguments.getvalue( "page" ) else escape( arguments.getvalue( "page" ) )
+if page == "":                                                                        
+    page = "1"                                                                        
+else:                                                                                 
+    if not page.isnumeric():                                                          
+        page = "1"                                                                    
+    elif not int(page) > 0:                                                           
+        page = "1"
+
+
+
+if page_req == 'finance':
+    q = '*'
+    page = 17
+    
+    
+
 if not q == '':
     
     html += f"""
@@ -100,6 +144,10 @@ if not q == '':
         .item {{ padding:5px; }}
         .link {{ color: black;text-decoration: none; }}
         .link:hover {{ color: blue; }}
+        .active {{ color:black;text-decoration:none; }}
+        .active_b {{ color:blue; }}
+        .paginationlinks {{ font-size:200%; }}
+        .nextprevious {{ color:#23ceec;text-decoration:none; }}
     </style>
     
     <link rel="icon" type="image/png" sizes="32x32" href="https://{strDomain}/bestsearch/page_img/favicon.png">
@@ -110,29 +158,81 @@ if not q == '':
     
     html += f"""search results from ({q}) """
     
+    limit = 10; # results per page
     cur.execute("SELECT count(id) from search;")
     row = cur.fetchone()      
-    count = row['count(id)']
+    total_records = row['count(id)']
+    total_pages = str(math.ceil(int(total_records) / int(limit)))
+    start_from = (int(page)-1) * limit 
     
-    cur.execute(f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' ;""")
+    
+    if q == '*':
+        sql = f"""SELECT * from search ORDER BY id ASC LIMIT {start_from}, {limit}""";
+    else:
+        sql = f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' ORDER BY id ASC LIMIT {start_from}, {limit} ;"""
+    cur.execute(sql)
     res = cur.fetchall()   
     if res:
-        html += f"""Under construction, <a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
+        html += f"""<a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
 
         html += f"""
         <div class="items">"""
-        for i, row in enumerate(res, 1):
+        for row in res:
             address = row['site_address']
             name = row['site_name']
+            uri = row['site_favicon_uri']
+            
+            favicon = ''
+            
+            if uri != '':
+                favicon = f""" ( <img style="vertical-align:bottom;width:20px" src="{uri}"> ) """
+                
             html += f"""
-            <div class="item"><span>({i})</span> <span style="font-size:small;"><a class="link" href="{address}">{address}</a></span><br>
-            <a href="{address}">{name}</a></div>"""
+            <div class="item"><span style="font-size:small;"><a class="link" href="{address}">{address}</a></span><br>
+            <a href="{address}">{name}</a> {favicon}</div>"""
         
         html += f"""
-        </div>"""
+        </div>
+        
+        <div style="margin-top:20px"></div>
+        
+"""
+    
+    html += f"""<div style="margin:auto;width:60%;">"""
+    
+    start = 1
+    total = 10
+    total_pages = int(total_pages)
+    page = int(page)
+        
+    if page > 5:
+        start = start + (page - 5)
+        total = total + (page - 5)
+        
+        if total > total_pages:
+            total = total_pages
     
     
-    html += f"""    
+    if page > 1:
+        i = page - 1
+        html += f"""<a class="nextprevious" href="/?q={q}&page={i}"><span>Previous</span> <span class="paginationlinks"">«</span></a>"""
+    
+    for i in range( start, total+1 ):
+    
+        if i == page:
+            html +=  f"""<a class="active" href="/?q={q}&page={i}"><span class="active_b">[</span> {i} <span class="active_b">]</span></a>"""
+        else:
+            html +=  f"""<a href="/?q={q}&page={i}">[ {i} ]</a>""" 
+    
+    if total_pages > page:
+        i=page+1
+        html += f"""<a class="nextprevious" href="/?q={q}&page={i}"><span class="paginationlinks">»</span> <span>Next</span></a> """
+    
+    #html += f""" of {total_records} results"""
+    
+    html += f""" 
+    </div>
+    
     </body>
     </html>
     """
@@ -177,7 +277,16 @@ else:
     
     <style>
          /* Mobile and Desktop */
-         
+
+        html {{
+            height: 100%;
+        }}
+
+        body {{
+            position: relative;
+            min-height: 100%;
+        }}
+        
         .center_title {{
             text-align: center;
         }}
@@ -200,6 +309,15 @@ else:
         .git_source_code {{
             text-align: right;
         }}  
+        
+        .interesting {{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            padding: 1rem;
+            background-color: #efefef;
+            text-align: center;
+        }}
         
     </style>
     
@@ -227,6 +345,7 @@ else:
             list.push({{label:"<h6 style='display:inline;'>suggestions - trending</h6>", value:"" }});
             list.push({{label:"EarthDay.Love", value:"https://EarthDay.Love" }}); 
             //list.push({{label:"TotalMart.US", value:"https://TotalMart.US" }}); 
+            list.push({{label:"*", value:"all" }}); 
 
             var autocomplete = new Awesomplete(document.querySelector("#search_input"), {{
                         list:list,
@@ -282,7 +401,7 @@ else:
     
     </head>
     <body>
-    <div class="git_source_code"><a  href="https://github.com/strategypro/BestInternetSearch">source code</a></div>
+    <div class="git_source_code"><a href="https://github.com/strategypro/BestInternetSearch" title="100% open source ❤">source code</a></div>
 <pre>
 <h1><a href="https://{strDomain}">{domain_name}</a></h1>
 </pre>
@@ -297,6 +416,31 @@ else:
     <input id="search_submit" type="submit" value="Search">
     </form> 
 
+
+    <div class="interesting">Interesting: <a href="https://videoflicktube.com/" title="VideoFlickTube.com - A video website, 100% open source ❤"><img src="https://{strDomain}/bestsearch/page_img/videoflicktube.png" /></a> 
+    <a id="ad_img_a" href="#" title="Purchase Advertising (url_address, title, description (optional), and relevant keywords up to 40) ad will be displayed among search results labeled as an ad in the top search results 1 or 2 pages depending on amount of Internet material within BestInternetSearch on relevant keywords (Click Advertise to select advertisement duration to purchase)">
+    <img id="ad_img" src="https://bestinternetsearch.com/bestsearch/page_img/Advertise_with_BestInternetSearch_purchase.png" />
+    </a>
+
+    """
+    
+    html += get_advertisement_form_code()
+    
+    html += f"""
+
+    <script>
+    $("#ad_form").hide();
+    
+    $("#ad_img").click(function(){{
+        $("#ad_form").toggle();
+     }});
+    
+    $("#ad_img_a").click(function(e){{
+        e.preventDefault();
+     }});    
+    </script>
+    
+    </div>   
     </body>
     </html>
     """
