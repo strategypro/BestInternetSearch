@@ -26,7 +26,7 @@ if not query == '':
 
     qq = []
 
-    cur.execute(f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{query}%' OR LOWER(site_title) LIKE '%{query}%' """)
+    cur.execute(f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{query}%' OR LOWER(site_title) LIKE '%{query}%' ORDER BY id ASC LIMIT 20; """)
     res = cur.fetchall()    
     for row in res:
         site_name = row['site_name']
