@@ -161,7 +161,7 @@ if not q == '':
     <body>
     """
     
-    html += f"""search results from ({q}) """
+    #html += f"""search results from ({q}) """
     
     limit = 10; # results per page
     cur.execute("SELECT count(id) from search;")
@@ -174,7 +174,7 @@ if not q == '':
     if q == '*':
         sql = f"""SELECT * from search ORDER BY id ASC LIMIT {start_from}, {limit}""";
     else:
-        sql = f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' ORDER BY id ASC LIMIT {start_from}, {limit} ;"""
+        sql = f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' OR LOWER(site_title) LIKE '%{q}%' ORDER BY id ASC LIMIT {start_from}, {limit} ;"""
     cur.execute(sql)
     res = cur.fetchall()   
     if res:
@@ -362,7 +362,22 @@ else:
                             if (suggestion.label == "<h6 style='display:inline;'>suggestions - trending</h6>") {{
                                 suggestion.label = '';
                             }}
-                            this.input.value = suggestion.label;
+                            
+                            var findit = suggestion.label.indexOf("--");
+                            var len_label = suggestion.label.length;
+                            if ( findit != -1){{
+                                
+                                var val = $( "#search_input" ).val();
+                                if (  suggestion.label.substring(0,findit).toLowerCase().trim() == val.toLowerCase() ) {{
+                                    this.input.value = suggestion.label.substring(0,findit-1);
+                                }}
+                                else {{
+                                    this.input.value = suggestion.label.substring(findit + 3, len_label).trim();
+                                }}
+                            }}
+                            else {{
+                                this.input.value = suggestion.label;
+                            }}
                         }}
                 }}
                 );

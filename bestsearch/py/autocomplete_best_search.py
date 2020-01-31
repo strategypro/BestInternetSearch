@@ -26,12 +26,19 @@ if not query == '':
 
     qq = []
 
-    cur.execute(f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{query}%' """)
+    cur.execute(f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{query}%' OR LOWER(site_title) LIKE '%{query}%' """)
     res = cur.fetchall()    
     for row in res:
-       site_name = row['site_name']
-       site_address = row['site_address']
-       qq.append({"value": site_address, "label": site_name  })
+        site_name = row['site_name']
+        site_title = row['site_title']
+        
+        if site_title != '':
+            site_name_output = f"""{site_name} -- {site_title} """
+        else:
+            site_name_output = site_name
+            
+        site_address = row['site_address']
+        qq.append({"value": site_address, "label": site_name_output  })
 
 
     #enc_print ( json.dumps(qq, separators=(',', ':')) )
