@@ -124,6 +124,9 @@ if not q == '':
             `
                 <style>
                     a {{ font-size:200%;}}
+                    
+                    #pagination {{margin-left:5px;white-space: nowrap;}}
+                    
                 </style>
             `);
         }}
@@ -132,7 +135,9 @@ if not q == '':
             document.write(
             `
                 <style>
-    
+                
+                    #pagination {{margin:auto;width:60%;}}
+                    
                 </style>
             `);
         }}
@@ -198,7 +203,7 @@ if not q == '':
         
 """
     
-    html += f"""<div style="margin:auto;width:60%;">"""
+    html += f"""<div id="pagination">"""
     
     start = 1
     total = 10
