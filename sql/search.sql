@@ -14,3 +14,16 @@ ENGINE=InnoDB
 AUTO_INCREMENT=1
 ;
 
+
+
+CREATE TABLE `add_a_link` (
+	`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`url` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	`title` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	`keywords` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+

@@ -172,7 +172,7 @@ if not q == '':
     cur.execute(sql)
     row = cur.fetchone()      
     total_records = row['count(id)']
-    total_pages = str(math.ceil(int(total_records) / int(limit)))
+    total_pages = math.ceil(int(total_records) / int(limit))
     start_from = (int(page)-1) * limit 
     
     
@@ -195,8 +195,8 @@ if not q == '':
             
             favicon = ''
             
-            if uri != '':
-                favicon = f""" ( <img style="vertical-align:bottom;width:20px" src="{uri}"> ) """
+            #if uri != '':
+            #    favicon = f""" ( <img style="vertical-align:bottom;width:20px" src="{uri}"> ) """
                 
             html += f"""
             <div class="item"><span style="font-size:small;"><a class="link" href="{address}">{address}</a></span>  <br> 
@@ -207,13 +207,56 @@ if not q == '':
         
         <div style="margin-top:20px"></div>
         
-"""
-    
+        """
+    else:
+        html += f""" no results for keyword(s) ( {q} )
+        <br>
+        <br>
+        May I ask something from you?  How about a Wiki style, add a (favorite) link:
+        <br>
+        <br>
+        <form id="add_a_link" method="post" action="https://{strDomain}/bestsearch/py/add_a_link.py">
+            Site url address: <input type="text" id="send_good_link" name="url" value="http:// or https://" style="width:75%"><br>
+            <br>
+            <br>
+            Suggest Title: <input type="text" name="title" style="width:50%">
+
+            <input type="hidden" name="keywords" value="{q}">
+            <br>
+            <input id="send_good_link_submit" type="submit" value="Send">
+        </form>
+        <br>        
+        If it's a good link (having good content), it will be approved and it will be added to the search results.  Thanks, the world benefits in a positive way from your help.
+        <script>
+            $("#send_good_link").focus(function() {{
+                $(this).val('');
+            }});
+            
+            $('#send_good_link_submit').click(function(e){{
+                e.preventDefault();
+
+            var form = $('#add_a_link');
+            var action = form.attr('action');
+            var data = form.serialize();
+
+            $.ajax({{
+                type: 'POST',
+                url: action,
+                data: data,
+                success: function (data) {{
+                    alert('form was sent: ' + data);
+                }}
+            }});
+                
+            }});
+        </script>
+        """
+        
     html += f"""<div id="pagination">"""
     
     start = 1
     total = 10
-    total_pages = int(total_pages)
+    total_pages = total_pages
     page = int(page)
     
     if not q == '*':
@@ -228,8 +271,6 @@ if not q == '':
             total = total_pages
 
 
-
-    
     if page > 1:
         i = page - 1
         html += f"""<a class="nextprevious" href="/?q={q}&page={i}"><span>Previous</span> <span class="paginationlinks"">«</span></a>"""
