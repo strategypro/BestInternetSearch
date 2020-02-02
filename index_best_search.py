@@ -217,11 +217,12 @@ if not q == '':
         results = [res, res2]
         
     html += f"""<a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
+    request_addlink = True
+    
     for res_items in results:
     
         if res_items:
             
-
             html += f"""
             <div class="items">"""
             for row in res_items:
@@ -245,49 +246,53 @@ if not q == '':
             <div style="margin-top:20px"></div>
             
             """
-        else:
-            html += f""" no results for keyword(s) ( {q} )
-            <br>
-            <br>
-            May I ask something from you?  How about a Wiki style, add a (favorite) link:
-            <br>
-            <br>
-            <form id="add_a_link" method="post" action="https://{strDomain}/bestsearch/py/add_a_link.py">
-                Site url address: <input type="text" id="send_good_link" name="url" value="http:// or https://" style="width:75%"><br>
-                <br>
-                <br>
-                Suggest Title: <input type="text" name="title" style="width:50%">
 
-                <input type="hidden" name="keywords" value="{q}">
-                <br>
-                <input id="send_good_link_submit" type="submit" value="Send">
-            </form>
-            <br>        
-            If it's a good link (having good content), it will be approved and it will be added to the search results.  Thanks, the world benefits in a positive way from your help.
-            <script>
-                $("#send_good_link").focus(function() {{
-                    $(this).val('');
-                }});
+            request_addlink = False
+    
+    
+    if request_addlink:
+        html += f""" no results for keyword(s) ( {q} )
+        <br>
+        <br>
+        May I ask something from you?  How about a Wiki style, add a (favorite) link:
+        <br>
+        <br>
+        <form id="add_a_link" method="post" action="https://{strDomain}/bestsearch/py/add_a_link.py">
+            Site url address: <input type="text" id="send_good_link" name="url" value="http:// or https://" style="width:75%"><br>
+            <br>
+            <br>
+            Suggest Title: <input type="text" name="title" style="width:50%">
+
+            <input type="hidden" name="keywords" value="{q}">
+            <br>
+            <input id="send_good_link_submit" type="submit" value="Send">
+        </form>
+        <br>        
+        If it's a good link (having good content), it will be approved and it will be added to the search results.  Thanks, the world benefits in a positive way from your help.
+        <script>
+            $("#send_good_link").focus(function() {{
+                $(this).val('');
+            }});
+            
+            $('#send_good_link_submit').click(function(e){{
+                e.preventDefault();
+
+            var form = $('#add_a_link');
+            var action = form.attr('action');
+            var data = form.serialize();
+
+            $.ajax({{
+                type: 'POST',
+                url: action,
+                data: data,
+                success: function (data) {{
+                    alert('form was sent: ' + data);
+                }}
+            }});
                 
-                $('#send_good_link_submit').click(function(e){{
-                    e.preventDefault();
-
-                var form = $('#add_a_link');
-                var action = form.attr('action');
-                var data = form.serialize();
-
-                $.ajax({{
-                    type: 'POST',
-                    url: action,
-                    data: data,
-                    success: function (data) {{
-                        alert('form was sent: ' + data);
-                    }}
-                }});
-                    
-                }});
-            </script>
-            """
+            }});
+        </script>
+        """
         
     html += f"""<div id="pagination">"""
     
