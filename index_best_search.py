@@ -16,6 +16,7 @@ sys.path.insert(0, "/var/www")
 from db_bestsearch import *
 cur = db.cursor(MySQLdb.cursors.DictCursor)
 
+from spell import *
 from urllib import parse
 from html import escape
 
@@ -192,6 +193,7 @@ if not q == '':
     total_pages = math.ceil(int(total_records) / int(limit))
     start_from = (int(page)-1) * limit 
     
+    results=[]
     
     if q == '*':
         sql = f"""SELECT * from search ORDER BY id ASC LIMIT {start_from}, {limit}""";
@@ -248,6 +250,19 @@ if not q == '':
             """
 
             request_addlink = False
+    
+    
+    result_status=False
+    for i in results:
+        if results != None:
+            result_status = True
+            
+    if (result_status):
+        s = SpellCheck()
+        perhaps_corrected = s.correction(q)
+        
+        if perhaps_corrected != q:
+            html += f""" perhaps search on <b><a href="https://{strDomain}/?q={perhaps_corrected}">{perhaps_corrected}</a></b>"""
     
     
     if request_addlink:
