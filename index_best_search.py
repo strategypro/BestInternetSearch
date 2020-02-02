@@ -165,13 +165,30 @@ if not q == '':
     
     limit = 10; # results per page
     
+    total_records=0
+    
     if q == '*':
-        sql = f"""SELECT count(id) from search""";
+        sql = f"""SELECT count(id) from search"""
+        
+        cur.execute(sql)
+        row = cur.fetchone()      
+        total_records = row['count(id)']
+        
     else:
         sql = f"""SELECT count(id) from search WHERE LOWER(site_name) LIKE '%{q}%' OR LOWER(site_title) LIKE '%{q}%' ;"""
-    cur.execute(sql)
-    row = cur.fetchone()      
-    total_records = row['count(id)']
+    
+        sql2 = f"""SELECT count(search.id) FROM search INNER JOIN 
+        (SELECT * from keywords WHERE LOWER(keyword) LIKE '%{q}%') AS keywords ON search.id = keywords.fk_search_id ; 
+        """
+        
+        cur.execute(sql)
+        row = cur.fetchone()      
+        total_records = row['count(id)']
+
+        cur.execute(sql2)
+        row = cur.fetchone()      
+        total_records += row['count(search.id)']
+    
     total_pages = math.ceil(int(total_records) / int(limit))
     start_from = (int(page)-1) * limit 
     
@@ -180,77 +197,91 @@ if not q == '':
         sql = f"""SELECT * from search ORDER BY id ASC LIMIT {start_from}, {limit}""";
     else:
         sql = f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' OR LOWER(site_title) LIKE '%{q}%' ORDER BY id ASC LIMIT {start_from}, {limit} ;"""
+    
+        sql2 = f"""SELECT * FROM search INNER JOIN 
+        (SELECT * from keywords WHERE LOWER(keyword) LIKE '%{q}%') AS keywords ON search.id = keywords.fk_search_id ; 
+        """
+        
     cur.execute(sql)
-    res = cur.fetchall()   
-    if res:
-        html += f"""<a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
+    res = cur.fetchall()
+    
+    cur.execute(sql2)
+    res2 = cur.fetchall()       
+    
+    results = [res, res2]
+        
+    html += f"""<a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
+    for res_items in results:
+    
+        if res_items:
+            
 
-        html += f"""
-        <div class="items">"""
-        for row in res:
-            address = row['site_address']
-            name = row['site_name']
-            title = row['site_title']
-            uri = row['site_favicon_uri']
-            
-            favicon = ''
-            
-            #if uri != '':
-            #    favicon = f""" ( <img style="vertical-align:bottom;width:20px" src="{uri}"> ) """
-                
             html += f"""
-            <div class="item"><span style="font-size:small;"><a class="link" href="{address}">{address}</a></span>  <br> 
-            <a href="{address}">{name}</a> {title} {favicon}</div>"""
-        
-        html += f"""
-        </div>
-        
-        <div style="margin-top:20px"></div>
-        
-        """
-    else:
-        html += f""" no results for keyword(s) ( {q} )
-        <br>
-        <br>
-        May I ask something from you?  How about a Wiki style, add a (favorite) link:
-        <br>
-        <br>
-        <form id="add_a_link" method="post" action="https://{strDomain}/bestsearch/py/add_a_link.py">
-            Site url address: <input type="text" id="send_good_link" name="url" value="http:// or https://" style="width:75%"><br>
-            <br>
-            <br>
-            Suggest Title: <input type="text" name="title" style="width:50%">
-
-            <input type="hidden" name="keywords" value="{q}">
-            <br>
-            <input id="send_good_link_submit" type="submit" value="Send">
-        </form>
-        <br>        
-        If it's a good link (having good content), it will be approved and it will be added to the search results.  Thanks, the world benefits in a positive way from your help.
-        <script>
-            $("#send_good_link").focus(function() {{
-                $(this).val('');
-            }});
-            
-            $('#send_good_link_submit').click(function(e){{
-                e.preventDefault();
-
-            var form = $('#add_a_link');
-            var action = form.attr('action');
-            var data = form.serialize();
-
-            $.ajax({{
-                type: 'POST',
-                url: action,
-                data: data,
-                success: function (data) {{
-                    alert('form was sent: ' + data);
-                }}
-            }});
+            <div class="items">"""
+            for row in res_items:
+                address = row['site_address']
+                name = row['site_name']
+                title = row['site_title']
+                uri = row['site_favicon_uri']
                 
-            }});
-        </script>
-        """
+                favicon = ''
+                
+                #if uri != '':
+                #    favicon = f""" ( <img style="vertical-align:bottom;width:20px" src="{uri}"> ) """
+                    
+                html += f"""
+                <div class="item"><span style="font-size:small;"><a class="link" href="{address}">{address}</a></span>  <br> 
+                <a href="{address}">{name}</a> {title} {favicon}</div>"""
+            
+            html += f"""
+            </div>
+            
+            <div style="margin-top:20px"></div>
+            
+            """
+        else:
+            html += f""" no results for keyword(s) ( {q} )
+            <br>
+            <br>
+            May I ask something from you?  How about a Wiki style, add a (favorite) link:
+            <br>
+            <br>
+            <form id="add_a_link" method="post" action="https://{strDomain}/bestsearch/py/add_a_link.py">
+                Site url address: <input type="text" id="send_good_link" name="url" value="http:// or https://" style="width:75%"><br>
+                <br>
+                <br>
+                Suggest Title: <input type="text" name="title" style="width:50%">
+
+                <input type="hidden" name="keywords" value="{q}">
+                <br>
+                <input id="send_good_link_submit" type="submit" value="Send">
+            </form>
+            <br>        
+            If it's a good link (having good content), it will be approved and it will be added to the search results.  Thanks, the world benefits in a positive way from your help.
+            <script>
+                $("#send_good_link").focus(function() {{
+                    $(this).val('');
+                }});
+                
+                $('#send_good_link_submit').click(function(e){{
+                    e.preventDefault();
+
+                var form = $('#add_a_link');
+                var action = form.attr('action');
+                var data = form.serialize();
+
+                $.ajax({{
+                    type: 'POST',
+                    url: action,
+                    data: data,
+                    success: function (data) {{
+                        alert('form was sent: ' + data);
+                    }}
+                }});
+                    
+                }});
+            </script>
+            """
         
     html += f"""<div id="pagination">"""
     
