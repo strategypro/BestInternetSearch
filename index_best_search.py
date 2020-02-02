@@ -195,6 +195,12 @@ if not q == '':
     
     if q == '*':
         sql = f"""SELECT * from search ORDER BY id ASC LIMIT {start_from}, {limit}""";
+    
+        cur.execute(sql)
+        res = cur.fetchall()
+    
+        results = [res]
+    
     else:
         sql = f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' OR LOWER(site_title) LIKE '%{q}%' ORDER BY id ASC LIMIT {start_from}, {limit} ;"""
     
@@ -202,13 +208,13 @@ if not q == '':
         (SELECT * from keywords WHERE LOWER(keyword) LIKE '%{q}%') AS keywords ON search.id = keywords.fk_search_id ; 
         """
         
-    cur.execute(sql)
-    res = cur.fetchall()
+        cur.execute(sql)
+        res = cur.fetchall()
+        
+        cur.execute(sql2)
+        res2 = cur.fetchall()       
     
-    cur.execute(sql2)
-    res2 = cur.fetchall()       
-    
-    results = [res, res2]
+        results = [res, res2]
         
     html += f"""<a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
     for res_items in results:
