@@ -252,6 +252,9 @@ if not q == '':
             request_addlink = False
     
     
+    
+    # ####################################################
+    # try to spell check
     result_status=False
     for i in results:
         if results != None:
@@ -259,10 +262,21 @@ if not q == '':
             
     if (result_status):
         s = SpellCheck()
-        perhaps_corrected = s.correction(q)
         
-        if perhaps_corrected != q:
-            html += f""" perhaps search on <b><a href="https://{strDomain}/?q={perhaps_corrected}">{perhaps_corrected}</a></b>"""
+        qq = q.split()
+        qq_res = []
+        strqq = ''
+        for item in qq:
+            qq_res.append(s.correction(item))
+        
+        strq  = " ".join(qq).strip()
+        strqq = " ".join(qq_res).strip()
+        
+        if strq != strqq:
+            strqq_href = strqq.replace(' ', '+')
+            html += f""" perhaps search on <b><a href="https://{strDomain}/?q={strqq_href}">{strqq}</a></b>"""
+    # ####################################################
+    
     
     
     if request_addlink:
