@@ -15,6 +15,7 @@ sys.path.insert(0, "/var/www")
 
 from db_bestsearch import *
 cur = db.cursor(MySQLdb.cursors.DictCursor)
+pg_cursor = pg_database.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
 
 from spell import *
 from urllib import parse
@@ -69,6 +70,7 @@ elif strDomain == 'www.bestnetsearch.com' or strDomain == 'bestnetsearch.com':
 
 arguments = cgi.FieldStorage()
 q = '' if not arguments.getvalue( "q" ) else escape( arguments.getvalue( "q" ) )
+q_input_case = q
 q = q.lower()
 
 
@@ -194,6 +196,7 @@ if not q == '':
     start_from = (int(page)-1) * limit 
     
     results=[]
+    dict_res = None
     
     if q == '*':
         sql = f"""SELECT * from search ORDER BY id ASC LIMIT {start_from}, {limit}""";
@@ -204,6 +207,12 @@ if not q == '':
         results = [res]
     
     else:
+    
+        sql_dict = f"""SELECT title, item FROM data WHERE title LIKE '%{q}%' ORDER BY CHAR_LENGTH(title) LIMIT 1;"""
+        pg_cursor.execute(sql_dict)
+        dict_res = pg_cursor.fetchall()
+        
+    
         sql = f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' OR LOWER(site_title) LIKE '%{q}%' ORDER BY id ASC LIMIT {start_from}, {limit} ;"""
     
         sql2 = f"""SELECT * FROM search INNER JOIN 
@@ -221,12 +230,47 @@ if not q == '':
     html += f"""<a href="https://{strDomain}">{domain_name}</a> created in 2020<br><br>"""
     request_addlink = True
     
+    
+    # ####################################################
+    if 'define' in q or 'definition' in q:
+        data = q.split()
+
+        search_term = ''
+
+        for item in data:
+            if not (item == 'define' or item == 'of' or item == 'definition'):
+                search_term += item + ' '
+                search_term = search_term.strip()
+
+
+        sql = f"""SELECT title, item FROM data WHERE title LIKE '%{search_term}%' ORDER BY CHAR_LENGTH(title) LIMIT 1;"""
+        
+        pg_cursor.execute(sql)
+        res = pg_cursor.fetchall()
+        
+        if res:
+            html += f"""<div class="items">"""
+
+            for row in res:
+                definition = row['item']
+                title = row['title']
+
+                html += f"""<div class="item"><h1>{title}</h1><pre>{definition}</pre></div>"""
+
+            html += f"""<h6>Concise Dictionary</h6> , <a href="https://en.wiktionary.org/wiki/{title}">Wiktionary</a></div>"""
+            
+            request_addlink = False
+    # ####################################################
+    
+    
+    
     for res_items in results:
     
         if res_items:
             
             html += f"""
             <div class="items">"""
+            
             for row in res_items:
                 address = row['site_address']
                 name = row['site_name']
@@ -244,12 +288,35 @@ if not q == '':
             
             html += f"""
             </div>
-            
             <div style="margin-top:20px"></div>
-            
             """
 
             request_addlink = False
+    
+    
+    
+    
+    # ####################################################
+    if total_pages <= 1:
+        if dict_res:
+        
+            html += f"""<div class="items">"""
+        
+            for row in dict_res:
+                definition = str(row['item'])
+                title = row['title']
+
+                html += f"""<div class="item"><h1>{q_input_case}</h1><pre>{definition}</pre></div>"""
+
+            html += f"""<h6>Concise Dictionary , <a href="https://en.wiktionary.org/wiki/{title}">Wiktionary</a></h6>"""
+            
+            html += f""" </div> """
+            
+            request_addlink = False
+    # ####################################################
+
+    
+    
     
     
     
@@ -327,7 +394,6 @@ if not q == '':
     
     start = 1
     total = 10
-    total_pages = total_pages
     page = int(page)
     
     if not q == '*':

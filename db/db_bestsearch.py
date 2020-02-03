@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 
 import MySQLdb
+
+import psycopg2
+import psycopg2.extras
+
 db = MySQLdb.connect(host="127.0.0.1",        # your host, usually localhost
                      user="",                 # your username
                      passwd="",               # your password
@@ -28,3 +32,11 @@ def get_advertisement_form_code():
 """
 
     return html    
+
+
+HOST = '127.0.0.1'
+DATABASE = 'dictionary'
+USERNAME = ''
+PASSWORD = ''
+pg_database = psycopg2.connect("dbname=%s user=%s password=%s host=%s" % (DATABASE, USERNAME, PASSWORD, HOST))
+

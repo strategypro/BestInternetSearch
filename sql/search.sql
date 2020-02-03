@@ -27,3 +27,14 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ;
 
+
+
+/* POSTGRESQL */
+CREATE TABLE data (
+key bigserial primary key,
+item text,
+title text
+);
+CREATE INDEX data_indx ON data (title);
+
+
