@@ -255,10 +255,10 @@ if not q == '':
     
     # ####################################################
     # try to spell check
-    result_status=False
-    for i in results:
-        if results != None:
-            result_status = True
+    result_status=True
+    for res in results:
+        if res:
+            result_status = False
             
     if (result_status):
         s = SpellCheck()
