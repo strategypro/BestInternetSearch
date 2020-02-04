@@ -38,3 +38,16 @@ title text
 CREATE INDEX data_indx ON data (title);
 
 
+/* MYSQL */
+CREATE TABLE `data` (
+	`key` INT(11) NOT NULL AUTO_INCREMENT,
+	`item` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	`title` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	PRIMARY KEY (`key`) USING BTREE
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1
+;
+CREATE INDEX title_idx ON data(title(255));
+

@@ -15,7 +15,7 @@ sys.path.insert(0, "/var/www")
 
 from db_bestsearch import *
 cur = db.cursor(MySQLdb.cursors.DictCursor)
-pg_cursor = pg_database.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
+#pg_cursor = pg_database.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
 
 from spell import *
 from urllib import parse
@@ -209,8 +209,8 @@ if not q == '':
     else:
     
         sql_dict = f"""SELECT title, item FROM data WHERE title LIKE '%{q}%' ORDER BY CHAR_LENGTH(title) LIMIT 1;"""
-        pg_cursor.execute(sql_dict)
-        dict_res = pg_cursor.fetchall()
+        cur.execute(sql_dict)
+        dict_res = cur.fetchall()
         
     
         sql = f"""SELECT * from search WHERE LOWER(site_name) LIKE '%{q}%' OR LOWER(site_title) LIKE '%{q}%' ORDER BY id ASC LIMIT {start_from}, {limit} ;"""
@@ -245,8 +245,8 @@ if not q == '':
 
         sql = f"""SELECT title, item FROM data WHERE title LIKE '%{search_term}%' ORDER BY CHAR_LENGTH(title) LIMIT 1;"""
         
-        pg_cursor.execute(sql)
-        res = pg_cursor.fetchall()
+        cur.execute(sql)
+        res = cur.fetchall()
         
         if res:
             html += f"""<div class="items">"""
@@ -257,7 +257,7 @@ if not q == '':
 
                 html += f"""<div class="item"><h1>{title}</h1><pre>{definition}</pre></div>"""
 
-            html += f"""<h6>Concise Dictionary</h6> , <a href="https://en.wiktionary.org/wiki/{title}">Wiktionary</a></div>"""
+            html += f"""<h6 style="display:inline;">Concise Dictionary</h6> , <a href="https://en.wiktionary.org/wiki/{title}">Wiktionary</a></div>"""
             
             request_addlink = False
     # ####################################################

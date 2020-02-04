@@ -8,7 +8,7 @@ sys.path.insert(0, "/var/www")
 
 from db_bestsearch import *
 cur = db.cursor(MySQLdb.cursors.DictCursor)
-pg_cursor = pg_database.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
+#pg_cursor = pg_database.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
 
 from html import escape
 
@@ -49,8 +49,8 @@ if not query == '':
         
         sql = f"""SELECT title FROM data WHERE title LIKE '%{query}%' ORDER BY CHAR_LENGTH(title) LIMIT {5};"""
         
-        pg_cursor.execute(sql)
-        res = pg_cursor.fetchall()
+        cur.execute(sql)
+        res = cur.fetchall()
         for row in res:
             title = row['title']
             qq.append({"value": "", "label": title  })
