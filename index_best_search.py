@@ -537,7 +537,7 @@ else:
         $(document).ready(function() {{
         
             $('#search_img').on('click',function() {{
-                $('#search_submit').click();
+                //$('#search_submit').click();
             }});
             
         }});
@@ -639,25 +639,37 @@ else:
 
     <div class="interesting">Interesting: <a href="https://videoflicktube.com/" title="VideoFlickTube.com - A video website, 100% open source ❤"><img src="https://{strDomain}/bestsearch/page_img/videoflicktube.png" /></a> 
     <a id="ad_img_a" href="#" title="Purchase Advertising (url_address, title, description (optional), and relevant keywords up to 40) ad will be displayed among search results labeled as an ad in the top search results 1 or 2 pages depending on amount of Internet material within BestInternetSearch on relevant keywords (Click Advertise to select advertisement duration to purchase)">
-    <img id="ad_img" src="https://bestinternetsearch.com/bestsearch/page_img/Advertise_with_BestInternetSearch_purchase.png" />
+    <img id="ad_img" src="https://{strDomain}/bestsearch/page_img/Advertise_with_BestInternetSearch_purchase.png" />
     </a>
-
+    <a id="adv" href="">Advertise</a>
     """
     
-    html += get_advertisement_form_code()
+    html += get_advertisement_form_code(strDomain)
     
     html += f"""
 
     <script>
     $("#ad_form").hide();
-    
+
     $("#ad_img").click(function(){{
         $("#ad_form").toggle();
-     }});
+    }});
     
     $("#ad_img_a").click(function(e){{
         e.preventDefault();
-     }});    
+    }});
+
+    $("#adv").click(function(e){{
+        e.preventDefault();
+        alert('Ad blocker should be turn off to display the advertisement purchasing option for BestInternetSearch.com, BestnetSearch.com, and BestwwwSearch.com');
+    }});
+     
+    $(document).ready(function(){{
+        if ( $('#ad_img').width() == 128){{
+            $('#adv').hide();
+        }}
+    }});
+    
     </script>
     
     </div>   

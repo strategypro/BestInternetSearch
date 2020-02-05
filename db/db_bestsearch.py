@@ -11,7 +11,7 @@ db = MySQLdb.connect(host="127.0.0.1",        # your host, usually localhost
                      db="best")               # name of the database
 
 
-def get_advertisement_form_code():
+def get_advertisement_form_code(strDomain):
     html = f"""
     
 <form id="ad_form" target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" >
