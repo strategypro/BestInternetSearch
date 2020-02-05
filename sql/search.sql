@@ -4,15 +4,19 @@ CREATE TABLE `search` (
 	`site_name` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
 	`site_title` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
 	`site_main_category` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
-	`site_keywords` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
 	`site_description` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
 	`site_favicon_uri` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
-	PRIMARY KEY (`id`) USING BTREE
+	`stock_trading_symbol` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	`stock_trading_exchange` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	`wikipedia_page` TEXT(65535) NOT NULL COLLATE 'utf8_general_ci',
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `site_address_indx` (`site_address`(255)) USING BTREE
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 AUTO_INCREMENT=1
 ;
+
 
 
 
