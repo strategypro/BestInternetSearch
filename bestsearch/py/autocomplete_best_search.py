@@ -47,7 +47,7 @@ if not query == '':
         
         #qq_limit = 20 - len(qq)
         
-        sql = f"""SELECT title FROM data WHERE title LIKE '%{query}%' ORDER BY CHAR_LENGTH(title) LIMIT {5};"""
+        sql = f"""SELECT title FROM data WHERE title LIKE '{query}%' ORDER BY CHAR_LENGTH(title) LIMIT {10};"""
         
         cur.execute(sql)
         res = cur.fetchall()
