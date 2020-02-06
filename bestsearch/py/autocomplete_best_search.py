@@ -47,6 +47,17 @@ if not query == '':
         
         #qq_limit = 20 - len(qq)
         
+        sql = f"""SELECT * FROM search INNER JOIN 
+        (SELECT * from keywords WHERE LOWER(keyword) LIKE '%{query}%') AS keywords ON search.id = keywords.fk_search_id ; 
+        """
+        
+        cur.execute(sql)
+        res = cur.fetchall()
+        for row in res:
+            keyword = row['keyword']
+            qq.append({"value": "", "label": keyword  })
+            
+        
         sql = f"""SELECT title FROM data WHERE title LIKE '{query}%' ORDER BY CHAR_LENGTH(title) LIMIT {10};"""
         
         cur.execute(sql)
@@ -54,6 +65,7 @@ if not query == '':
         for row in res:
             title = row['title']
             qq.append({"value": "", "label": title  })
+        
         
     #enc_print ( json.dumps(qq, separators=(',', ':')) )
     enc_print ( json.dumps(qq) )
