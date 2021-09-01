@@ -19,3 +19,5 @@ Linux
 
 Setup Python on Apache with this stackoverflow [guide](https://stackoverflow.com/a/57531411/4084546) I wrote.
 
+
+Latest News:  Although https://BestInternetSearch.com is now using source code that is closed source and proprietary, this github was an early version of the source code to the foundation of BestInternetSearch.com Inc.  Happy coding!
